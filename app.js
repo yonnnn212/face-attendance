@@ -3,125 +3,238 @@ const result = document.getElementById("result");
 
 let students = [];
 
-async function loadStudents() {
+function log(text){
 
-    const response = await fetch("students.json");
-    students = await response.json();
+    let debug =
+    document.getElementById("debug");
 
-    console.log("Students loaded:", students);
+    if(!debug){
+
+        debug =
+        document.createElement("div");
+
+        debug.id = "debug";
+
+        document.body.appendChild(debug);
+
+    }
+
+    debug.innerHTML += text + "<br>";
 }
 
-async function loadModels() {
+window.onerror = function(msg, url, line){
 
-    console.log("Loading models...");
+    log(
+        "ERROR: " +
+        msg +
+        " line:" +
+        line
+    );
 
-    await faceapi.nets.ssdMobilenetv1.loadFromUri("./models");
-    await faceapi.nets.faceLandmark68Net.loadFromUri("./models");
-    await faceapi.nets.faceRecognitionNet.loadFromUri("./models");
+};
 
-    console.log("Models loaded");
+async function loadStudents(){
 
-    await loadStudents();
+    log("Loading students...");
 
-    startVideo();
+    const response =
+    await fetch("students.json");
+
+    students =
+    await response.json();
+
+    log(
+        "Students loaded: " +
+        students.length
+    );
+
 }
 
-function startVideo() {
+async function loadModels(){
+
+    try{
+
+        log("Loading SSD...");
+
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(
+            "./models"
+        );
+
+        log("SSD OK");
+
+        await faceapi.nets.faceLandmark68Net.loadFromUri(
+            "./models"
+        );
+
+        log("LANDMARK OK");
+
+        await faceapi.nets.faceRecognitionNet.loadFromUri(
+            "./models"
+        );
+
+        log("RECOGNITION OK");
+
+        await loadStudents();
+
+        log("MODELS LOADED");
+
+        startVideo();
+
+    }
+    catch(error){
+
+        log(
+            "MODEL ERROR: " +
+            error
+        );
+
+    }
+
+}
+
+function startVideo(){
+
+    log("Starting camera...");
 
     navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then(stream => {
+    .getUserMedia({
+        video:true
+    })
+    .then(stream=>{
 
-            video.srcObject = stream;
+        log("Camera allowed");
 
-        })
-        .catch(error => {
+        video.srcObject =
+        stream;
 
-            console.error(error);
+    })
+    .catch(error=>{
 
-            alert("Kamera tidak dapat diakses");
+        log(
+            "CAMERA ERROR: " +
+            error
+        );
 
-        });
+    });
+
 }
 
-video.addEventListener("play", () => {
+video.addEventListener(
+"play",
+()=>{
 
-    setInterval(scanFace, 1000);
+    log("Video playing");
 
-});
+    setInterval(
+        scanFace,
+        1000
+    );
 
-async function scanFace() {
+}
+);
 
-    try {
+async function scanFace(){
 
-        console.log(
-            "Video:",
-            video.videoWidth,
+    try{
+
+        log(
+            "Video: " +
+            video.videoWidth +
+            " x " +
             video.videoHeight
         );
 
         const detection =
-            await faceapi
-                .detectSingleFace(video)
-                .withFaceLandmarks()
-                .withFaceDescriptor();
+        await faceapi
+        .detectSingleFace(video)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
 
-        console.log("Detection:", detection);
+        log(
+            "Detection: " +
+            (detection ? "YES" : "NO")
+        );
 
-        if (!detection) {
+        if(!detection){
             return;
         }
 
         let bestMatch = null;
+
         let bestDistance = 1;
 
-        for (const student of students) {
+        for(const student of students){
 
             const savedDescriptor =
-                new Float32Array(
-                    student.descriptor
-                );
+            new Float32Array(
+                student.descriptor
+            );
 
             const distance =
-                faceapi.euclideanDistance(
-                    detection.descriptor,
-                    savedDescriptor
-                );
+            faceapi.euclideanDistance(
+                detection.descriptor,
+                savedDescriptor
+            );
 
-            if (distance < bestDistance) {
+            if(distance < bestDistance){
 
-                bestDistance = distance;
-                bestMatch = student;
+                bestDistance =
+                distance;
+
+                bestMatch =
+                student;
 
             }
+
         }
 
-        console.log(
-            "Distance:",
+        log(
+            "Distance: " +
             bestDistance
         );
 
-        if (
+        if(
             bestMatch &&
             bestDistance < 0.7
-        ) {
+        ){
 
             const now =
-                new Date().toLocaleString();
+            new Date()
+            .toLocaleString();
 
-            result.innerHTML = `
-                <h2>${bestMatch.nama}</h2>
-                <p>NIM : ${bestMatch.nim}</p>
-                <p>Waktu : ${now}</p>
-                <p>Distance : ${bestDistance.toFixed(3)}</p>
+            result.innerHTML =
+
+            `
+            <h2>${bestMatch.nama}</h2>
+
+            <p>
+            NIM :
+            ${bestMatch.nim}
+            </p>
+
+            <p>
+            Waktu :
+            ${now}
+            </p>
+
+            <p>
+            Distance :
+            ${bestDistance.toFixed(3)}
+            </p>
             `;
+
         }
 
-    } catch (error) {
+    }
+    catch(error){
 
-        console.error(error);
+        log(
+            "SCAN ERROR: " +
+            error
+        );
 
     }
+
 }
 
 loadModels();
