@@ -144,8 +144,11 @@ async function registerFace(){
         );
 
         alert(
-            "Data mahasiswa berhasil disimpan"
-        );
+    "Data mahasiswa berhasil disimpan"
+);
+
+window.location.href =
+"index.html";
 
         namaInput.value = "";
         nimInput.value = "";
