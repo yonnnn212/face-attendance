@@ -1,21 +1,63 @@
 const video =
 document.getElementById("video");
 
-Promise.all([
-faceapi.nets.ssdMobilenetv1.loadFromUri("./models"),
-faceapi.nets.faceLandmark68Net.loadFromUri("./models"),
-faceapi.nets.faceRecognitionNet.loadFromUri("./models")
-]).then(startVideo);
+const result =
+document.getElementById("result");
+
+let students = [];
+
+async function loadStudents(){
+
+    students =
+    await fetch("students.json")
+    .then(response =>
+        response.json()
+    );
+
+    console.log(
+        "Students loaded:",
+        students
+    );
+
+}
+
+async function loadModels(){
+
+    await faceapi.nets.ssdMobilenetv1.loadFromUri("./models");
+
+    await faceapi.nets.faceLandmark68Net.loadFromUri("./models");
+
+    await faceapi.nets.faceRecognitionNet.loadFromUri("./models");
+
+    await loadStudents();
+
+    startVideo();
+
+}
+
+loadModels();
 
 function startVideo(){
 
-navigator.mediaDevices
-.getUserMedia({
-video:true
-})
-.then(stream=>{
-video.srcObject=stream;
-});
+    navigator.mediaDevices
+    .getUserMedia({
+        video:true
+    })
+    .then(stream=>{
+
+        video.srcObject =
+        stream;
+
+    })
+    .catch(error=>{
+
+        console.error(error);
+
+        alert(
+            "Kamera tidak dapat diakses"
+        );
+
+    });
 
 }
 
@@ -23,88 +65,85 @@ video.addEventListener(
 "play",
 ()=>{
 
-setInterval(
-scanFace,
-1000
-);
+    setInterval(
+        scanFace,
+        1000
+    );
 
 }
 );
 
 async function scanFace(){
 
-const detection =
-await faceapi
-.detectSingleFace(video)
-.withFaceLandmarks()
-.withFaceDescriptor();
+    const detection =
+    await faceapi
+    .detectSingleFace(video)
+    .withFaceLandmarks()
+    .withFaceDescriptor();
 
-if(!detection){
-return;
-}
+    if(!detection){
+        return;
+    }
 
-let bestMatch=null;
+    let bestMatch = null;
 
-let bestDistance=1;
+    let bestDistance = 1;
 
-for(
-let i=0;
-i<localStorage.length;
-i++
-){
+    for(const student of students){
 
-const key =
-localStorage.key(i);
+        const savedDescriptor =
+        new Float32Array(
+            student.descriptor
+        );
 
-const student =
-JSON.parse(
-localStorage.getItem(key)
-);
+        const distance =
+        faceapi.euclideanDistance(
+            detection.descriptor,
+            savedDescriptor
+        );
 
-const savedDescriptor =
-new Float32Array(
-student.descriptor
-);
+        if(distance < bestDistance){
 
-const distance =
-faceapi.euclideanDistance(
-detection.descriptor,
-savedDescriptor
-);
+            bestDistance =
+            distance;
 
-if(distance<bestDistance){
+            bestMatch =
+            student;
 
-bestDistance=
-distance;
+        }
 
-bestMatch=
-student;
+    }
 
-}
+    if(
+        bestMatch &&
+        bestDistance < 0.5
+    ){
 
-}
+        const now =
+        new Date()
+        .toLocaleString();
 
-if(
-bestMatch &&
-bestDistance<0.5
-){
+        result.innerHTML =
 
-const now=
-new Date()
-.toLocaleString();
+        `
+        <h2>${bestMatch.nama}</h2>
 
-document
-.getElementById("result")
-.innerHTML=
+        <p>
+        NIM :
+        ${bestMatch.nim}
+        </p>
 
-`
-Nama : ${bestMatch.nama}
-<br>
-NIM : ${bestMatch.nim}
-<br>
-Waktu : ${now}
-`;
+        <p>
+        Waktu :
+        ${now}
+        </p>
 
-}
+        <p>
+        Similarity :
+        ${(1-bestDistance).toFixed(2)}
+        </p>
+        `;
+
+    }
 
 }
