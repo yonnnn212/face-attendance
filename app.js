@@ -75,11 +75,24 @@ video.addEventListener(
 
 async function scanFace(){
 
+    console.log(
+        "Video:",
+        video.videoWidth,
+        video.videoHeight
+    );
+
     const detection =
     await faceapi
     .detectSingleFace(video)
     .withFaceLandmarks()
     .withFaceDescriptor();
+
+    console.log(
+        "Detection:",
+        detection
+    );
+
+}
 
     if(!detection){
         return;
