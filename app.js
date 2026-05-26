@@ -92,8 +92,6 @@ async function scanFace(){
         detection
     );
 
-}
-
     if(!detection){
         return;
     }
