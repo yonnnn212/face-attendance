@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Mahasiswa</title>
+</head>
+<body>
+
+    <h1>Register Mahasiswa</h1>
+
+    <input
+        type="text"
+        id="nama"
+        placeholder="Nama">
+
+    <br><br>
+
+    <input
+        type="text"
+        id="nim"
+        placeholder="NIM">
+
+    <br><br>
+
+    <input
+        type="file"
+        id="imageUpload"
+        accept="image/*">
+
+    <br><br>
+
+    <img
+        id="preview"
+        width="300"
+        style="display:none;">
+
+    <br><br>
+
+    <button id="saveBtn">
+        Simpan Wajah
+    </button>
+
+    <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="register.js"></script>
+
+</body>
+</html>
