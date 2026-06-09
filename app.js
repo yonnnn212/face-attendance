@@ -198,23 +198,18 @@ async function scanFace(){
             bestDistance < 0.7
         ){
 
-            const now = new Date();
+            const now =
+            new Date();
 
             const currentTime =
             now.getHours() * 60 +
             now.getMinutes();
 
             let status = "";
-            
+
             if(
                 currentTime >= 500 &&
                 currentTime <= 530
-            ){
-                status = "Present";
-            }
-            else if(
-                currentTime > 530 &&
-                currentTime < 600
             ){
                 status = "Present";
             }
@@ -237,6 +232,7 @@ async function scanFace(){
 
             `
             <h2>${bestMatch.nama}</h2>
+
             <p>
             NIM :
             ${bestMatch.nim}
@@ -247,10 +243,29 @@ async function scanFace(){
             ${status}
             </p>
 
-             <p>
+            <p>
+            Waktu :
+            ${now.toLocaleString()}
+            </p>
+
+            <p>
             Distance :
             ${bestDistance.toFixed(3)}
             </p>
             `;
 
-}           
+        }
+
+    }
+    catch(error){
+
+        log(
+            "SCAN ERROR: " +
+            error
+        );
+
+    }
+
+}
+
+loadModels();
