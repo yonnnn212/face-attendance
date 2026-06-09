@@ -193,48 +193,64 @@ async function scanFace(){
             bestDistance
         );
 
-if(
+        if(
             bestMatch &&
             bestDistance < 0.7
         ){
 
-            const now =
-            new Date()
-            .toLocaleString();
+            const now = new Date();
+
+            const currentTime =
+            now.getHours() * 60 +
+            now.getMinutes();
+
+            let status = "";
+            
+            if(
+                currentTime >= 500 &&
+                currentTime <= 530
+            ){
+                status = "Present";
+            }
+            else if(
+                currentTime > 530 &&
+                currentTime < 600
+            ){
+                status = "Present";
+            }
+            else if(
+                currentTime > 530 &&
+                currentTime < 600
+            ){
+                status = "Late but Present";
+            }
+            else if(
+                currentTime >= 600
+            ){
+                status = "Absent";
+            }
+            else{
+                status = "Too Early";
+            }
 
             result.innerHTML =
 
             `
             <h2>${bestMatch.nama}</h2>
-
             <p>
             NIM :
             ${bestMatch.nim}
             </p>
 
             <p>
-            Waktu :
-            ${now}
+            Status :
+            ${status}
             </p>
 
-            <p>
+             <p>
             Distance :
             ${bestDistance.toFixed(3)}
             </p>
             `;
 
-        }
-
-    }
-    catch(error){
-
-        log(
-            "SCAN ERROR: " +
-            error
-        );
-
-    }
-
-}
-
-loadModels();
+}           
