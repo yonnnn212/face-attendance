@@ -194,47 +194,61 @@ async function scanFace(){
         );
 
         if(
-            bestMatch &&
-            bestDistance < 0.7
-        ){
+    bestMatch &&
+    bestDistance < 0.7
+){
 
-            const now =
-            new Date()
-            .toLocaleString();
+    const now = new Date();
 
-            result.innerHTML =
+    const currentTime =
+    now.getHours() * 60 +
+    now.getMinutes();
 
-            `
-            <h2>${bestMatch.nama}</h2>
+    let status = "";
 
-            <p>
-            NIM :
-            ${bestMatch.nim}
-            </p>
-
-            <p>
-            Waktu :
-            ${now}
-            </p>
-
-            <p>
-            Distance :
-            ${bestDistance.toFixed(3)}
-            </p>
-            `;
-
-        }
-
+    if(
+        currentTime >= 500 &&
+        currentTime <= 530
+    ){
+        status = "Present";
     }
-    catch(error){
-
-        log(
-            "SCAN ERROR: " +
-            error
-        );
-
+    else if(
+        currentTime > 530 &&
+        currentTime < 600
+    ){
+        status = "Late but Present";
     }
+    else if(
+        currentTime >= 600
+    ){
+        status = "Absent";
+    }
+    else{
+        status = "Too Early";
+    }
+
+    result.innerHTML = `
+        <h2>${bestMatch.nama}</h2>
+
+        <p>
+        NIM :
+        ${bestMatch.nim}
+        </p>
+
+        <p>
+        Status :
+        ${status}
+        </p>
+
+        <p>
+        Waktu :
+        ${now.toLocaleString()}
+        </p>
+
+        <p>
+        Distance :
+        ${bestDistance.toFixed(3)}
+        </p>
+    `;
 
 }
-
-loadModels();
