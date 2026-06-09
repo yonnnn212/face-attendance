@@ -229,30 +229,11 @@ async function scanFace(){
             }
 
             result.innerHTML =
-
-            `
-            <h2>${bestMatch.nama}</h2>
-
-            <p>
-            NIM :
-            ${bestMatch.nim}
-            </p>
-
-            <p>
-            Status :
-            ${status}
-            </p>
-
-            <p>
-            Waktu :
-            ${now.toLocaleString()}
-            </p>
-
-            <p>
-            Distance :
-            ${bestDistance.toFixed(3)}
-            </p>
-            `;
+            "<h2>" + bestMatch.nama + "</h2>" +
+            "<p><b>NIM :</b> " + bestMatch.nim + "</p>" +
+            "<p><b>Status :</b> " + status + "</p>" +
+            "<p><b>Waktu :</b> " + now.toLocaleString() + "</p>" +
+            "<p><b>Distance :</b> " + bestDistance.toFixed(3) + "</p>";
 
         }
 
