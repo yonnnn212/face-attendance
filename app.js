@@ -193,7 +193,7 @@ async function scanFace(){
             bestDistance
         );
 
-        if(
+if(
     bestMatch &&
     bestDistance < 0.7
 ){
